@@ -10,6 +10,7 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
   static boolean sDown=false;
   static boolean dDown=false;
   ArrayList<Bullet> bullets=new ArrayList<Bullet>();
+  ArrayList<Rock> rocks=new ArrayList<Rock>();
   static int width=0;
   static int height=0;
   Ship ship=new Ship();
@@ -28,10 +29,14 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
   }
   public void run() {
     while (true) {
+      ship.tick();
     for (int i=0; i<bullets.size(); i++) {
-      objs.get(i).tick();
+      bullets.get(i).tick();
     }
     repaint();
+    if (Math.random()<0.01) {
+      rocks.add(new Rock());
+    }
     try {
       Thread.sleep(30);
     } catch (Exception e) {
@@ -53,6 +58,9 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='d') dDown=false;
   }
   public void keyTyped(KeyEvent e) {
+    if (e.getKeyChar()==' ') {
+      bullets.add(new Bullet(ship.x,ship.y,ship.direction,30));
+    }
   }
   public void paintComponent(Graphics g) {
     width=getSize().width;
@@ -100,7 +108,7 @@ class SpaceThing {
     if (direction >270 && direction!=360) return -(Math.cos(Math.toRadians(direction-270))*(double)len);
     return 5;
   }
-  public double getChangeY(int len, int direction) {
+  public double getChangeY(int len, float direction) {
     direction= (direction+360)%360;
     if (direction <90 && direction !=0) return -(Math.cos(Math.toRadians(direction))*(double)len);
     if (direction ==90 || direction==270) return 0;
@@ -157,18 +165,72 @@ class Bullet extends SpaceThing {
     yVel=getChangeY(vel,direction);
   }
   public void render(Graphics2D g) {
-    graf.setColor(Color.GREEN);
+    g.setColor(Color.GREEN);
     AffineTransform af=new AffineTransform();
-    Rectangle2D r=new Rectangle2D(x,y,4,xVel+yVel);
-    af.rotate(Math.toRadians(direction));
+    Rectangle2D.Double r=new Rectangle2D.Double(x,y,4,20);
+    af.rotate(Math.toRadians(direction),x+4,y+(xVel+yVel)/2);
     hit=hit=af.createTransformedShape(r).getBounds2D();
-    graf.setTransform
+    g.setTransform(af);
+    g.fill(r);
   }
   public void tick() {
     updateLoc();
     if (y<-10 || x<-10 || x>SpaceGame.width+10 || y>SpaceGame.height+10) {
       SpaceGame.pan.bullets.remove(this);
-      this.dispose();
     }
+  }
+}
+class Rock extends SpaceThing {
+  GeneralPath hit=new GeneralPath();
+  Point[] shape=new Point[16];
+  public void tick() {
+    updateLoc();
+    if (y<-10 || x<-10 || x>SpaceGame.width+10 || y>SpaceGame.height+10) {
+      SpaceGame.pan.rocks.remove(this);
+    }
+  }
+  public Rock() {
+    double i=Math.random();
+    if (i<=0.25) {
+      x=-9;
+      y=(int)Math.floor(Math.random()*SpaceGame.height);
+      xVel=Math.abs(Math.floor(Math.random()*10));
+      yVel=Math.floor(Math.random()*10);
+    }
+    if (i<=0.5 && i>0.25) {
+      x=SpaceGame.width+9;
+      y=(int)Math.floor(Math.random()*SpaceGame.height);
+      xVel=-Math.abs(Math.floor(Math.random()*10));
+      yVel=Math.floor(Math.random()*10);
+    }
+    if (i<=0.75 && i>0.5) {
+      y=-9;
+      x=(int)Math.floor(Math.random()*SpaceGame.width);
+      yVel=Math.abs(Math.floor(Math.random()*10));
+      xVel=Math.floor(Math.random()*10);
+    }
+    if (i>0.75) {
+      y=SpaceGame.height+9;
+      x=(int)Math.floor(Math.random()*SpaceGame.width);
+      yVel=-Math.abs(Math.floor(Math.random()*10));
+      xVel=Math.floor(Math.random()*10);
+    }
+    for (float deg=0; deg<360; deg +=22.5) {
+      double j=Math.random()*20;
+      int px=(int)getChangeX(40+(int)j,deg);
+      int py=(int)getChangeY(40+(int)j,deg);
+      shape[(int)(deg/22.5)]=new Point(px,py);
+    }
+  }
+  public void render(Graphics2D g) {
+    GeneralPath p=new GeneralPath();
+    p.moveTo(shape[0].x+x,shape[0].y+y);
+    for (int i=0; i<16; i++) {
+      p.lineTo(shape[i].x+x,shape[i].y+y);
+    }
+    p.closePath();
+    hit=p;
+    g.setColor(new Color(153,92,21));
+    g.fill(p);
   }
 }
