@@ -104,12 +104,22 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
   static boolean dDown=false;
   static int score=0;
   static int lives=3;
+  static double dif=0;
   ArrayList<Bullet> bullets=new ArrayList<Bullet>();
   ArrayList<Rock> rocks=new ArrayList<Rock>();
   static int width=0;
   static int height=0;
   Ship ship=new Ship();
   public static void gameStart() {
+    pan=new SpaceGame();
+    lives=3;
+    score=0;
+    running=true;
+    dDown=false;
+    sDown=false;
+    aDown=false;
+    wDown=false;
+    dif=0;
     JFrame j=new JFrame("Space Game");
     j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     j.setSize(400,400);
@@ -125,6 +135,7 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
     pan.ship.x=80;
     pan.ship.y=80;
     while (running) {
+      dif += 0.00006;
       ship.tick();
     for (int i=0; i<bullets.size(); i++) {
       bullets.get(i).tick();
@@ -133,7 +144,7 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
       rocks.get(i).tick();
     }
     repaint();
-    if (Math.random()<0.03) {
+    if (Math.random()<Math.sqrt(dif/50D)) {
       rocks.add(new Rock());
     } 
     for (int i=0; i<rocks.size(); i++) {
@@ -153,7 +164,7 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
       }
     }
     try {
-      Thread.sleep(30);
+      Thread.sleep(25);
     } catch (Exception e) {
     }
     }
@@ -172,7 +183,7 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='d') dDown=true;
     if (e.getKeyChar()==' ') {
       if (ship.toFire<=0) {
-      bullets.add(new Bullet(ship.x,ship.y,ship.direction,40));
+      bullets.add(new Bullet(ship.x+(int)ship.getChangeX(20,ship.direction),ship.y+(int)ship.getChangeY(20,ship.direction),ship.direction,40));
       ship.toFire=8;
       }
     }
@@ -271,8 +282,8 @@ class Ship extends SpaceThing {
     }
     xVel *= 0.98;
     yVel *= 0.98;
-    if (SpaceGame.aDown) direction -= 2;
-    if (SpaceGame.dDown) direction += 2;
+    if (SpaceGame.aDown) direction -= 3;
+    if (SpaceGame.dDown) direction += 3;
     if (x<0) x=SpaceGame.width;
     if (y<0) y=SpaceGame.height;
     if (x>SpaceGame.width) x=0;
@@ -306,7 +317,7 @@ class Bullet extends SpaceThing {
     g.setColor(Color.GREEN);
     AffineTransform af=new AffineTransform();
     Rectangle2D.Double r=new Rectangle2D.Double(x,y,4,20);
-    af.rotate(Math.toRadians(direction),x+4,y+(xVel+yVel)/2);
+    af.rotate(Math.toRadians(direction),x+2,y);
     hit=hit=af.createTransformedShape(r).getBounds2D();
     g.setTransform(af);
     g.fill(r);
@@ -332,26 +343,26 @@ class Rock extends SpaceThing {
     if (i<=0.25) {
       x=-9;
       y=(int)Math.floor(Math.random()*SpaceGame.height);
-      xVel=Math.abs(Math.floor(Math.random()*10));
-      yVel=Math.floor(Math.random()*10);
+      xVel=Math.abs(Math.floor(Math.random()*(30*SpaceGame.dif+2)));
+      yVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
     }
     if (i<=0.5 && i>0.25) {
       x=SpaceGame.width+9;
       y=(int)Math.floor(Math.random()*SpaceGame.height);
-      xVel=-Math.abs(Math.floor(Math.random()*10));
-      yVel=Math.floor(Math.random()*10);
+      xVel=-Math.abs(Math.floor(Math.random()*(2+30*SpaceGame.dif)));
+      yVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
     }
     if (i<=0.75 && i>0.5) {
       y=-9;
       x=(int)Math.floor(Math.random()*SpaceGame.width);
-      yVel=Math.abs(Math.floor(Math.random()*10));
-      xVel=Math.floor(Math.random()*10);
+      yVel=Math.abs(Math.floor(Math.random()*(2+30*SpaceGame.dif)));
+      xVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
     }
     if (i>0.75) {
       y=SpaceGame.height+9;
       x=(int)Math.floor(Math.random()*SpaceGame.width);
-      yVel=-Math.abs(Math.floor(Math.random()*10));
-      xVel=Math.floor(Math.random()*10);
+      yVel=-Math.abs(Math.floor(Math.random()*(2+30*SpaceGame.dif)));
+      xVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
     }
     for (float deg=0; deg<360; deg +=22.5) {
       double j=Math.random()*15;
