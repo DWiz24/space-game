@@ -3,8 +3,63 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
-public class SpaceGame extends JPanel implements KeyListener, Runnable {
+import java.io.*;
+public class Launcher extends JFrame implements ActionListener {
+  JButton[] buttons=new JButton[16];
+  boolean[] lvlComplete=new boolean[16];
+  static long killed=0;
+  static long totalScore=0;
+  public static void main(String[] a) {
+    for (int i=0; i<lvlComplete.length; i++) {
+      lvlComplete[i]=false;
+    }
+    try {
+      FileInputStream f=new FileInputStream("data.dat");
+      BufferedInputStream b=new BufferedInputStream(f);
+      DataInputStream d=new DataInputStream(f);
+      killed=d.readLong();
+      score=d.readLong();
+      for (int i=1; i<16; i++) {
+        lvlComplete[i]=d.readBoolean();
+      }
+    }
+    buttons[0]=new JButton("Play Classic Asteroids");
+    buttons[1]=new JButton("Play Level 1" + lvlComplete[1] ? "-Complete":"");
+    buttons[2]=new JButton("Play Level 2" + lvlComplete[2] ? "-Complete":"");
+    buttons[3]=new JButton("Play Level 3" + lvlComplete[3] ? "-Complete":"");
+    buttons[4]=new JButton("Play Level 4" + lvlComplete[4] ? "-Complete":"");
+    buttons[5]=new JButton("Play Level 5" + lvlComplete[5] ? "-Complete":"");
+    buttons[6]=new JButton("Play Level 6" + lvlComplete[6] ? "-Complete":"");
+    buttons[7]=new JButton("Play Level 7" + lvlComplete[7] ? "-Complete":"");
+    buttons[8]=new JButton("Play Level 8" + lvlComplete[8] ? "-Complete":"");
+    buttons[9]=new JButton("Play Level 9" + lvlComplete[9] ? "-Complete":"");
+    buttons[10]=new JButton("Play Level 10" + lvlComplete[10] ? "-Complete":"");
+    buttons[11]=new JButton("Play Level 11" + lvlComplete[11] ? "-Complete":"");
+    buttons[12]=new JButton("Play Level 12" + lvlComplete[12] ? "-Complete":"");
+    buttons[13]=new JButton("Play Level 13" + lvlComplete[13] ? "-Complete":"");
+    buttons[14]=new JButton("Play Level 14" + lvlComplete[14] ? "-Complete":"");
+    buttons[15]=new JButton("Play Level 15" + lvlComplete[15] ? "-Complete":"");
+    JLabel[] l=new JLabel[16];
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids!");
+  }
+}
+class SpaceGame extends JPanel implements KeyListener, Runnable {
   static SpaceGame pan=new SpaceGame();
+  static boolean running=true;
   static boolean wDown=false;
   static boolean aDown=false;
   static boolean sDown=false;
@@ -16,7 +71,7 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
   static int width=0;
   static int height=0;
   Ship ship=new Ship();
-  public static void main(String[] a) {
+  public static void gameStart() {
     JFrame j=new JFrame("Space Game");
     j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     j.setSize(400,400);
@@ -24,13 +79,13 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     pan.addKeyListener(pan);
     j.add(pan);
     j.setVisible(true);
-    pan.ship.x=80;
-    pan.ship.y=80;
     Thread t=new Thread(pan);
     t.start();
   }
   public void run() {
-    while (true) {
+    pan.ship.x=80;
+    pan.ship.y=80;
+    while (running) {
       ship.tick();
     for (int i=0; i<bullets.size(); i++) {
       bullets.get(i).tick();
@@ -67,6 +122,7 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
   public void keyPressed(KeyEvent e) {
     char key=e.getKeyChar();
     if (key=='w') wDown=true;
+    if (e.getKeyCode()==VK.ESCAPE) running=false;
     if (key=='a') aDown=true;
     if (key=='s') sDown=true;
     if (key=='d') dDown=true;
