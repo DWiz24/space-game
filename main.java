@@ -71,7 +71,10 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='s') sDown=true;
     if (key=='d') dDown=true;
     if (e.getKeyChar()==' ') {
+      if (ship.toFire<=0) {
       bullets.add(new Bullet(ship.x,ship.y,ship.direction,40));
+      ship.toFire=8;
+      }
     }
   }
   public void keyReleased(KeyEvent e) {
@@ -154,8 +157,10 @@ class SpaceThing {
   }
 }
 class Ship extends SpaceThing {
+  int toFire=0;
   public void tick() {
     updateLoc();
+    toFire--;
     if (SpaceGame.wDown) {
       xVel = xVel + getChangeX(1,direction);
       yVel = yVel + getChangeY(1,direction);
