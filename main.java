@@ -14,7 +14,6 @@ public class Launcher extends JFrame implements ActionListener {
     Object s=e.getSource();
     if (s==buttons[0]) {
       new SpaceGame().gameStart();
-      System.out.println("lol");
     }
     setVisible(false);
   }
@@ -91,9 +90,9 @@ public class Launcher extends JFrame implements ActionListener {
       content.add(l[i+3]);
     }
     add(content);
+    pack();
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setVisible(true);
-    setExtendedState(JFrame.MAXIMIZED_BOTH);
   }
 }
 class SpaceGame extends JPanel implements KeyListener, Runnable {
@@ -118,6 +117,7 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
     pan.addKeyListener(pan);
     j.add(pan);
     j.setVisible(true);
+    j.setExtendedState(JFrame.MAXIMIZED_BOTH);
     Thread t=new Thread(pan);
     t.start();
   }
@@ -164,7 +164,8 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
     if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {
       running=false;
       setVisible(false);
-      ((JFrame)getParent()).dispose();
+      ((JFrame)SwingUtilities.getWindowAncestor(this)).dispose();
+      Launcher.launch.setVisible(true);
     }
     if (key=='a') aDown=true;
     if (key=='s') sDown=true;
