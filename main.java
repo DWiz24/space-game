@@ -5,10 +5,19 @@ import java.awt.geom.*;
 import java.util.*;
 import java.io.*;
 public class Launcher extends JFrame implements ActionListener {
+  static Launcher launch;
   JButton[] buttons=new JButton[16];
-  boolean[] lvlComplete=new boolean[16];
+  static boolean[] lvlComplete=new boolean[16];
   static long killed=0;
   static long totalScore=0;
+  public void actionPerformed(ActionEvent e) {
+    Object s=e.getSource();
+    if (s==buttons[0]) {
+      new SpaceGame().gameStart();
+      System.out.println("lol");
+    }
+    setVisible(false);
+  }
   public static void main(String[] a) {
     for (int i=0; i<lvlComplete.length; i++) {
       lvlComplete[i]=false;
@@ -18,43 +27,73 @@ public class Launcher extends JFrame implements ActionListener {
       BufferedInputStream b=new BufferedInputStream(f);
       DataInputStream d=new DataInputStream(f);
       killed=d.readLong();
-      score=d.readLong();
+      totalScore=d.readLong();
       for (int i=1; i<16; i++) {
         lvlComplete[i]=d.readBoolean();
       }
+    } catch (Exception e) {
+      System.out.println("Unable to load data");
     }
+    launch=new Launcher();
+  }
+  public Launcher() {
+    super("Space Game Launcher");
     buttons[0]=new JButton("Play Classic Asteroids");
-    buttons[1]=new JButton("Play Level 1" + lvlComplete[1] ? "-Complete":"");
-    buttons[2]=new JButton("Play Level 2" + lvlComplete[2] ? "-Complete":"");
-    buttons[3]=new JButton("Play Level 3" + lvlComplete[3] ? "-Complete":"");
-    buttons[4]=new JButton("Play Level 4" + lvlComplete[4] ? "-Complete":"");
-    buttons[5]=new JButton("Play Level 5" + lvlComplete[5] ? "-Complete":"");
-    buttons[6]=new JButton("Play Level 6" + lvlComplete[6] ? "-Complete":"");
-    buttons[7]=new JButton("Play Level 7" + lvlComplete[7] ? "-Complete":"");
-    buttons[8]=new JButton("Play Level 8" + lvlComplete[8] ? "-Complete":"");
-    buttons[9]=new JButton("Play Level 9" + lvlComplete[9] ? "-Complete":"");
-    buttons[10]=new JButton("Play Level 10" + lvlComplete[10] ? "-Complete":"");
-    buttons[11]=new JButton("Play Level 11" + lvlComplete[11] ? "-Complete":"");
-    buttons[12]=new JButton("Play Level 12" + lvlComplete[12] ? "-Complete":"");
-    buttons[13]=new JButton("Play Level 13" + lvlComplete[13] ? "-Complete":"");
-    buttons[14]=new JButton("Play Level 14" + lvlComplete[14] ? "-Complete":"");
-    buttons[15]=new JButton("Play Level 15" + lvlComplete[15] ? "-Complete":"");
+    buttons[1]=new JButton("Play Level 1" + (lvlComplete[1] ? "-Complete":""));
+    buttons[2]=new JButton("Play Level 2" + (lvlComplete[2] ? "-Complete":""));
+    buttons[3]=new JButton("Play Level 3" + (lvlComplete[3] ? "-Complete":""));
+    buttons[4]=new JButton("Play Level 4" + (lvlComplete[4] ? "-Complete":""));
+    buttons[5]=new JButton("Play Level 5" + (lvlComplete[5] ? "-Complete":""));
+    buttons[6]=new JButton("Play Level 6" + (lvlComplete[6] ? "-Complete":""));
+    buttons[7]=new JButton("Play Level 7" + (lvlComplete[7] ? "-Complete":""));
+    buttons[8]=new JButton("Play Level 8" + (lvlComplete[8] ? "-Complete":""));
+    buttons[9]=new JButton("Play Level 9" + (lvlComplete[9] ? "-Complete":""));
+    buttons[10]=new JButton("Play Level 10" + (lvlComplete[10] ? "-Complete":""));
+    buttons[11]=new JButton("Play Level 11" + (lvlComplete[11] ? "-Complete":""));
+    buttons[12]=new JButton("Play Level 12" + (lvlComplete[12] ? "-Complete":""));
+    buttons[13]=new JButton("Play Level 13" + (lvlComplete[13] ? "-Complete":""));
+    buttons[14]=new JButton("Play Level 14" + (lvlComplete[14] ? "-Complete":""));
+    buttons[15]=new JButton("Play Level 15" + (lvlComplete[15] ? "-Complete":""));
+    for (int i=0; i<16; i++) {
+      buttons[i].addActionListener(this);
+    }
     JLabel[] l=new JLabel[16];
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
-    l[0]=new JLabel("Classic asteroids!");
+    l[0]=new JLabel("Classic asteroids! Goes on forever.");
+    l[1]=new JLabel("Destroy all the asteroids");
+    l[2]=new JLabel("Destroy even more asteroids");
+    l[3]=new JLabel("Classic asteroids!");
+    l[4]=new JLabel("Classic asteroids!");
+    l[5]=new JLabel("Classic asteroids!");
+    l[6]=new JLabel("Classic asteroids!");
+    l[7]=new JLabel("Classic asteroids!");
+    l[8]=new JLabel("Classic asteroids!");
+    l[9]=new JLabel("Classic asteroids!");
+    l[10]=new JLabel("Classic asteroids!");
+    l[11]=new JLabel("Classic asteroids!");
+    l[12]=new JLabel("Classic asteroids!");
+    l[13]=new JLabel("Classic asteroids!");
+    l[14]=new JLabel("Classic asteroids!");
+    l[15]=new JLabel("Classic asteroids!");
+    JPanel content=new JPanel();
+    content.setLayout(new GridLayout(9,4));
+    content.add(new JPanel());
+    content.add(new JLabel("Total Stuff Killed: " + killed));
+    content.add(new JLabel("Total Score: " + totalScore));
+    content.add(new JLabel("<html><p>WASD to move. Space to fire. Kill all enimies to win.</p></html>"));
+    for (int i=0; i<16; i+=4) {
+      content.add(buttons[i]);
+      content.add(buttons[i+1]);
+      content.add(buttons[i+2]);
+      content.add(buttons[i+3]);
+      content.add(l[i]);
+      content.add(l[i+1]);
+      content.add(l[i+2]);
+      content.add(l[i+3]);
+    }
+    add(content);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setVisible(true);
+    setExtendedState(JFrame.MAXIMIZED_BOTH);
   }
 }
 class SpaceGame extends JPanel implements KeyListener, Runnable {
@@ -122,7 +161,11 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
   public void keyPressed(KeyEvent e) {
     char key=e.getKeyChar();
     if (key=='w') wDown=true;
-    if (e.getKeyCode()==VK.ESCAPE) running=false;
+    if (e.getKeyCode()==KeyEvent.VK_ESCAPE) {
+      running=false;
+      setVisible(false);
+      ((JFrame)getParent()).dispose();
+    }
     if (key=='a') aDown=true;
     if (key=='s') sDown=true;
     if (key=='d') dDown=true;
