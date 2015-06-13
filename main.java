@@ -9,6 +9,8 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
   static boolean aDown=false;
   static boolean sDown=false;
   static boolean dDown=false;
+  static int score=0;
+  static int lives=3;
   ArrayList<Bullet> bullets=new ArrayList<Bullet>();
   ArrayList<Rock> rocks=new ArrayList<Rock>();
   static int width=0;
@@ -33,9 +35,28 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     for (int i=0; i<bullets.size(); i++) {
       bullets.get(i).tick();
     }
+    for (int i=0; i<rocks.size(); i++) {
+      rocks.get(i).tick();
+    }
     repaint();
-    if (Math.random()<0.01) {
+    if (Math.random()<0.03) {
       rocks.add(new Rock());
+    } 
+    for (int i=0; i<rocks.size(); i++) {
+      Rock r=rocks.get(i);
+      if (r.hit.intersects(ship.hit)) {
+        lives--;
+        rocks.remove(r);
+      }
+      for (int j=0; j<bullets.size(); j++) {
+        Bullet b=bullets.get(j);
+      if (r.hit.intersects(b.hit)) {
+        bullets.remove(b);
+        rocks.remove(r);
+        if (score%50==49) lives++;
+        score++;
+      }
+      }
     }
     try {
       Thread.sleep(30);
@@ -49,6 +70,9 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='a') aDown=true;
     if (key=='s') sDown=true;
     if (key=='d') dDown=true;
+    if (e.getKeyChar()==' ') {
+      bullets.add(new Bullet(ship.x,ship.y,ship.direction,40));
+    }
   }
   public void keyReleased(KeyEvent e) {
     char key=e.getKeyChar();
@@ -58,9 +82,6 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='d') dDown=false;
   }
   public void keyTyped(KeyEvent e) {
-    if (e.getKeyChar()==' ') {
-      bullets.add(new Bullet(ship.x,ship.y,ship.direction,30));
-    }
   }
   public void paintComponent(Graphics g) {
     width=getSize().width;
@@ -71,8 +92,20 @@ public class SpaceGame extends JPanel implements KeyListener, Runnable {
     graf.setColor(Color.BLACK);
     graf.fill(new Rectangle(0,0,wid,hei));
     ship.render(graf);
+    graf.setTransform(new AffineTransform());
+    graf.drawString("Score: " + score,10,10);
+    graf.drawString("Lives: " + lives,10,30);
     for (int i=0; i<bullets.size(); i++) {
       (bullets.get(i)).render(graf);
+    }
+    for (int i=0; i<rocks.size(); i++) {
+      rocks.get(i).render(graf);
+    }
+    if (lives<=0) {
+      graf.setTransform(new AffineTransform());
+      graf.setFont(new Font("Times New Roman", Font.BOLD,40));
+      graf.setColor(Color.BLUE);
+      graf.drawString("Diagnosis: You're dead!",wid/3,hei/3);
     }
   }
 }
@@ -97,7 +130,7 @@ class SpaceThing {
     y+=(int)yChange;
     yCarry=yChange%1;
   }
-  public double getChangeX(int len, int direction) {
+  public double getChangeX(double len, float direction) {
     direction= (direction+360)%360;
     if (direction <90 && direction!=0) return (Math.sin(Math.toRadians(direction))*(double)len);
     if (direction ==90) return len;
@@ -108,12 +141,12 @@ class SpaceThing {
     if (direction >270 && direction!=360) return -(Math.cos(Math.toRadians(direction-270))*(double)len);
     return 5;
   }
-  public double getChangeY(int len, float direction) {
+  public double getChangeY(double len, float direction) {
     direction= (direction+360)%360;
     if (direction <90 && direction !=0) return -(Math.cos(Math.toRadians(direction))*(double)len);
     if (direction ==90 || direction==270) return 0;
-    if (direction ==180) return -len;
-    if (direction ==0) return len;
+    if (direction ==180) return len;
+    if (direction ==0) return -len;
     if (direction >90 && direction<180) return (Math.sin(Math.toRadians(direction-90))*(double)len);
     if (direction >180 && direction<270) return (Math.cos(Math.toRadians(direction-180))*(double)len);
     if (direction >270 && direction!=360) return -(Math.sin(Math.toRadians(direction-270))*(double)len);
@@ -216,9 +249,9 @@ class Rock extends SpaceThing {
       xVel=Math.floor(Math.random()*10);
     }
     for (float deg=0; deg<360; deg +=22.5) {
-      double j=Math.random()*20;
-      int px=(int)getChangeX(40+(int)j,deg);
-      int py=(int)getChangeY(40+(int)j,deg);
+      double j=Math.random()*15;
+      int px=(int)getChangeX(20+j,deg);
+      int py=(int)getChangeY(20+j,deg);
       shape[(int)(deg/22.5)]=new Point(px,py);
     }
   }
@@ -231,6 +264,7 @@ class Rock extends SpaceThing {
     p.closePath();
     hit=p;
     g.setColor(new Color(153,92,21));
+    g.setTransform(new AffineTransform());
     g.fill(p);
   }
 }
