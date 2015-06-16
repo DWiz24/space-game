@@ -9,7 +9,7 @@ public class Launcher extends JFrame implements ActionListener {
   JButton[] buttons=new JButton[16];
   static boolean[] lvlComplete=new boolean[16];
   static long killed=0;
-  static long totalScore=0;
+  static long highScore=0;
   public void actionPerformed(ActionEvent e) {
     Object s=e.getSource();
     if (s==buttons[0]) {
@@ -26,7 +26,7 @@ public class Launcher extends JFrame implements ActionListener {
       BufferedInputStream b=new BufferedInputStream(f);
       DataInputStream d=new DataInputStream(f);
       killed=d.readLong();
-      totalScore=d.readLong();
+      highScore=d.readLong();
       for (int i=1; i<16; i++) {
         lvlComplete[i]=d.readBoolean();
       }
@@ -77,7 +77,7 @@ public class Launcher extends JFrame implements ActionListener {
     content.setLayout(new GridLayout(9,4));
     content.add(new JPanel());
     content.add(new JLabel("Total Stuff Killed: " + killed));
-    content.add(new JLabel("Total Score: " + totalScore));
+    content.add(new JLabel("Classic high Score: " + highScore));
     content.add(new JLabel("<html><p>WASD to move. Space to fire. Kill all enimies to win.</p></html>"));
     for (int i=0; i<16; i+=4) {
       content.add(buttons[i]);
@@ -160,6 +160,7 @@ class SpaceGame extends JPanel implements KeyListener, Runnable {
         rocks.remove(r);
         if (score%50==49) lives++;
         score++;
+        Launcher.killed++;
       }
       }
     }
