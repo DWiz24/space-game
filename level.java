@@ -7,6 +7,7 @@ import java.io.*;
 import javax.imageio.ImageIO;
 import java.awt.image.*;
 class LSpaceGame extends JPanel implements KeyListener, Runnable {
+  static short ticks=0;
   static LSpaceGame pan=new LSpaceGame();
   static BufferedImage back=null;
   static boolean running=true;
@@ -15,6 +16,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static boolean sDown=false;
   static boolean dDown=false;
   static boolean spaceDown=false;
+  static boolean won=false;
   static int lives=100;
   static int movingCof=12;
   static int scrnX=0;
@@ -31,8 +33,20 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   public static void levelSetup() {
     switch (level) {
       case 1:
-        dif=1;
-        for (int i=0; i<20; i++) {
+        dif=0.7;
+        for (int i=0; i<40; i++) {
+          pan.rocks.add(new LRock());
+        }
+        break;
+      case 2:
+        dif=1.2;
+        for (int i=0; i<100; i++) {
+          pan.rocks.add(new LRock());
+        }
+        break;
+      case 13:
+        dif=1.8;
+        for (int i=0; i<200; i++) {
           pan.rocks.add(new LRock());
         }
         break;
@@ -65,9 +79,13 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     t.start();
   }
   public void run() {
+    ticks=0;
     pan.ship.x=80;
     pan.ship.y=80;
-    while (running) {
+    while (running && !won) {
+      if (rocks.size()==0 && ticks>310) won=true;
+      ticks++;
+      if (ticks==300) levelSetup();
       ship.tick();
     for (int i=0; i<bullets.size(); i++) {
       bullets.get(i).tick();
@@ -137,7 +155,8 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     graf.drawImage(back,-scrnX,-scrnY,null);
     ship.render(graf);
     graf.setTransform(new AffineTransform());
-    graf.drawString("Health: " + lives,10,10);
+    graf.setFont(new Font("Times New Roman", Font.BOLD,20));
+    graf.drawString("Health: " + lives,10,20);
     for (int i=0; i<bullets.size(); i++) {
       (bullets.get(i)).render(graf);
     }
@@ -147,9 +166,15 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     if (lives<=0) {
       running=false;
       graf.setTransform(new AffineTransform());
-      graf.setFont(new Font("Times New Roman", Font.BOLD,40));
+      graf.setFont(new Font("Times New Roman", Font.BOLD,60));
       graf.setColor(Color.BLUE);
       graf.drawString("Diagnosis: You're dead!",scrnWid/3,scrnHei/3);
+    }
+    if (won) {
+      graf.setTransform(new AffineTransform());
+      graf.setFont(new Font("Times New Roman", Font.BOLD,80));
+      graf.setColor(Color.BLUE);
+      graf.drawString("You won!",scrnWid/3,scrnHei/3);
     }
   }
 }
@@ -283,25 +308,25 @@ class LRock extends LSpaceThing {
       x=-9;
       y=(int)Math.floor(Math.random()*LSpaceGame.height);
       xVel=Math.abs(Math.floor(Math.random()*(30*LSpaceGame.dif+2)));
-      yVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
+      yVel=Math.floor((Math.random()-0.5)*2*(2+30*LSpaceGame.dif));
     }
     if (i<=0.5 && i>0.25) {
       x=LSpaceGame.width+9;
       y=(int)Math.floor(Math.random()*LSpaceGame.height);
       xVel=-Math.abs(Math.floor(Math.random()*(2+30*LSpaceGame.dif)));
-      yVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
+      yVel=Math.floor((Math.random()-0.5)*2*(2+30*LSpaceGame.dif));
     }
     if (i<=0.75 && i>0.5) {
       y=-9;
       x=(int)Math.floor(Math.random()*LSpaceGame.width);
       yVel=Math.abs(Math.floor(Math.random()*(2+30*LSpaceGame.dif)));
-      xVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
+      xVel=Math.floor((Math.random()-0.5)*2*(2+30*LSpaceGame.dif));
     }
     if (i>0.75) {
       y=LSpaceGame.height+9;
       x=(int)Math.floor(Math.random()*LSpaceGame.width);
       yVel=-Math.abs(Math.floor(Math.random()*(2+30*LSpaceGame.dif)));
-      xVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
+      xVel=Math.floor((Math.random()-0.5)*2*(2+30*LSpaceGame.dif));
     }
     for (float deg=0; deg<360; deg +=22.5) {
       double j=Math.random()*10;
@@ -314,9 +339,9 @@ class LRock extends LSpaceThing {
     int sX=LSpaceGame.scrnX;
     int sY=LSpaceGame.scrnY;
     GeneralPath p=new GeneralPath();
-    p.moveTo(shape[0].x+x+sX,shape[0].y+y+sY);
+    p.moveTo(shape[0].x+x-sX,shape[0].y+y-sY);
     for (int i=0; i<16; i++) {
-      p.lineTo(shape[i].x+x+sX,shape[i].y+y+sY);
+      p.lineTo(shape[i].x+x-sX,shape[i].y+y-sY);
     }
     p.closePath();
     hit=p;
