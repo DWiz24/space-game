@@ -15,6 +15,11 @@ public class Launcher extends JFrame implements ActionListener {
     if (s==buttons[0]) {
       new SpaceGame().gameStart();
     }
+    for (int i=1; i<16; i++) {
+      if (s==buttons[i]) {
+        LSpaceGame.gameStart();
+      }
+    }
     setVisible(false);
   }
   public static void main(String[] a) {
