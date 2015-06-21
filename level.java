@@ -5,7 +5,7 @@ import java.awt.geom.*;
 import java.util.*;
 import java.io.*;
 class LSpaceGame extends JPanel implements KeyListener, Runnable {
-  static LSpaceGame pan=new SpaceGame();
+  static LSpaceGame pan=new LSpaceGame();
   static boolean running=true;
   static boolean wDown=false;
   static boolean aDown=false;
@@ -52,7 +52,6 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       rocks.get(i).tick();
     }
     repaint();
-    } 
     for (int i=0; i<rocks.size(); i++) {
       LRock r=rocks.get(i);
       if (r.hit.intersects(ship.hit)) {
@@ -88,7 +87,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='d') dDown=true;
     if (e.getKeyChar()==' ') {
       if (ship.toFire<=0) {
-      bullets.add(new Bullet(ship.x+(int)ship.getChangeX(20,ship.direction),ship.y+(int)ship.getChangeY(20,ship.direction),ship.direction,40));
+      bullets.add(new LBullet(ship.x+(int)ship.getChangeX(20,ship.direction),ship.y+(int)ship.getChangeY(20,ship.direction),ship.direction,40));
       ship.toFire=8;
       }
     }
@@ -109,8 +108,8 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     width=2000;
     height=2000;
     scrnX=Math.max(0,Math.min(ship.x-scrnWid/2,width-scrnWid));
-    scrnY=Math.max(0,Mat.min(ship.y-scrnHei/2,height-scrnHei));
-    graf.fill(new Rectangle(0,0,wid,hei));
+    scrnY=Math.max(0,Math.min(ship.y-scrnHei/2,height-scrnHei));
+    graf.fill(new Rectangle(0,0,scrnWid,scrnHei));
     ship.render(graf);
     graf.setTransform(new AffineTransform());
     graf.drawString("Health: " + lives,10,10);
@@ -121,14 +120,15 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       rocks.get(i).render(graf);
     }
     if (lives<=0) {
+      running=false;
       graf.setTransform(new AffineTransform());
       graf.setFont(new Font("Times New Roman", Font.BOLD,40));
       graf.setColor(Color.BLUE);
-      graf.drawString("Diagnosis: You're dead!",wid/3,hei/3);
+      graf.drawString("Diagnosis: You're dead!",scrnWid/3,scrnHei/3);
     }
   }
 }
-class SpaceThing {
+class LSpaceThing {
   int x=10;
   int y=10;
   int direction=0;
@@ -172,11 +172,11 @@ class SpaceThing {
     return 5;
   }
 }
-class Ship extends SpaceThing {
+class LShip extends SpaceThing {
   int toFire=0;
   public void tick() {
     updateLoc();
-    toFire--;
+    toFire=Math.max(toFire-1,0);
     if (SpaceGame.wDown) {
       xVel = xVel + getChangeX(1,direction);
       yVel = yVel + getChangeY(1,direction);
@@ -197,21 +197,23 @@ class Ship extends SpaceThing {
   }
   public void render(Graphics2D g) {
     GeneralPath p=new GeneralPath();
-    p.moveTo(x-10,y-8);
-    p.lineTo(x+10,y);
-    p.lineTo(x-10,y+8);
-    p.lineTo(x-4,y);
+    int sX=LSpaceGame.scrnX;
+    int sY=LSpaceGame.scrnY;
+    p.moveTo(x-10-sX,y-8-sY);
+    p.lineTo(x+10-sX,y-sY);
+    p.lineTo(x-10-sX,y+8-sY);
+    p.lineTo(x-4-sX,y-sY);
     p.closePath();
     AffineTransform af=new AffineTransform();
     g.setTransform(af);
-    g.rotate(Math.toRadians(direction-90),x,y);
+    g.rotate(Math.toRadians(direction-90),x-sX,y-sY);
     hit=af.createTransformedShape(p).getBounds2D();
     g.setColor(Color.RED);
     g.fill(p);
   }
 }
-class Bullet extends SpaceThing {
-  public Bullet(int sx, int sy, int sdirection, int vel) {
+class LBullet extends LSpaceThing {
+  public LBullet(int sx, int sy, int sdirection, int vel) {
     x=sx;
     y=sy;
     direction=sdirection;
@@ -219,31 +221,33 @@ class Bullet extends SpaceThing {
     yVel=getChangeY(vel,direction);
   }
   public void render(Graphics2D g) {
+    int sX=LSpaceGame.scrnX;
+    int sY=LSpaceGame.scrnY;
     g.setColor(Color.GREEN);
     AffineTransform af=new AffineTransform();
-    Rectangle2D.Double r=new Rectangle2D.Double(x,y,4,20);
-    af.rotate(Math.toRadians(direction),x+2,y);
+    Rectangle2D.Double r=new Rectangle2D.Double(x-sX,y-sY,4,20);
+    af.rotate(Math.toRadians(direction),x+2-sX,y-sY);
     hit=hit=af.createTransformedShape(r).getBounds2D();
     g.setTransform(af);
     g.fill(r);
   }
   public void tick() {
     updateLoc();
-    if (y<-10 || x<-10 || x>SpaceGame.width+10 || y>SpaceGame.height+10) {
+    if (y<-10 || x<-10 || x>LSpaceGame.width+10 || y>LSpaceGame.height+10) {
       SpaceGame.pan.bullets.remove(this);
     }
   }
 }
-class Rock extends SpaceThing {
+class LRock extends LSpaceThing {
   GeneralPath hit=new GeneralPath();
   Point[] shape=new Point[16];
   public void tick() {
     updateLoc();
-    if (y<-10 || x<-10 || x>SpaceGame.width+10 || y>SpaceGame.height+10) {
+    if (y<-10 || x<-10 || x>LSpaceGame.width+10 || y>LSpaceGame.height+10) {
       SpaceGame.pan.rocks.remove(this);
     }
   }
-  public Rock() {
+  public LRock() {
     double i=Math.random();
     if (i<=0.25) {
       x=-9;
@@ -277,10 +281,12 @@ class Rock extends SpaceThing {
     }
   }
   public void render(Graphics2D g) {
+    int sX=LSpaceGame.scrnX;
+    int sY=LSpaceGame.scrnY;
     GeneralPath p=new GeneralPath();
-    p.moveTo(shape[0].x+x,shape[0].y+y);
+    p.moveTo(shape[0].x+x+sX,shape[0].y+y+sY);
     for (int i=0; i<16; i++) {
-      p.lineTo(shape[i].x+x,shape[i].y+y);
+      p.lineTo(shape[i].x+x+sX,shape[i].y+y+sY);
     }
     p.closePath();
     hit=p;
