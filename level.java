@@ -14,7 +14,8 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static boolean aDown=false;
   static boolean sDown=false;
   static boolean dDown=false;
-  static int lives=3;
+  static int lives=100;
+  static int movingCof=12;
   static int scrnX=0;
   static int scrnY=0;
   ArrayList<LBullet> bullets=new ArrayList<LBullet>();
@@ -76,7 +77,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       }
     }
     try {
-      Thread.sleep(25);
+      Thread.sleep(20);
     } catch (Exception e) {
     }
     }
@@ -153,10 +154,10 @@ class LSpaceThing {
   public void render(Graphics2D g) {
   }
   public void updateLoc() {
-    double xChange=(xVel/8)+xCarry;
+    double xChange=xVel/((double)LSpaceGame.movingCof)+xCarry;
     x+=(int)xChange;
     xCarry=xChange%1;
-    double yChange=(yVel/8)+yCarry;
+    double yChange=yVel/((double)LSpaceGame.movingCof)+yCarry;
     y+=(int)yChange;
     yCarry=yChange%1;
   }
@@ -183,7 +184,7 @@ class LSpaceThing {
     return 5;
   }
 }
-class LShip extends SpaceThing {
+class LShip extends LSpaceThing {
   int toFire=0;
   public void tick() {
     updateLoc();
