@@ -4,8 +4,11 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
 import java.io.*;
+import javax.imageio.ImageIO;
+import java.awt.image.*;
 class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static LSpaceGame pan=new LSpaceGame();
+  static BufferedImage back=new BufferedImage(0,0,BufferedImage.TYPE_3BYTE_BGR);
   static boolean running=true;
   static boolean wDown=false;
   static boolean aDown=false;
@@ -22,6 +25,11 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static int scrnHei=20;
   LShip ship=new LShip();
   public static void gameStart() {
+    try {
+      back=ImageIO.read(new File("starBackground.png"));
+    } catch (Exception e) {
+      System.out.println("Failed to load background");
+    }
     pan=new LSpaceGame();
     lives=100;
     running=true;
@@ -109,7 +117,10 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     height=2000;
     scrnX=Math.max(0,Math.min(ship.x-scrnWid/2,width-scrnWid));
     scrnY=Math.max(0,Math.min(ship.y-scrnHei/2,height-scrnHei));
-    graf.fill(new Rectangle(0,0,scrnWid,scrnHei));
+    AffineTransform trans=new AffineTransform();
+    trans.scale(4,4);
+    graf.setTransform(trans);
+    graf.drawImage(back,-scrnX,-scrnY,null);
     ship.render(graf);
     graf.setTransform(new AffineTransform());
     graf.drawString("Health: " + lives,10,10);
@@ -177,22 +188,22 @@ class LShip extends SpaceThing {
   public void tick() {
     updateLoc();
     toFire=Math.max(toFire-1,0);
-    if (SpaceGame.wDown) {
+    if (LSpaceGame.wDown) {
       xVel = xVel + getChangeX(1,direction);
       yVel = yVel + getChangeY(1,direction);
     }
-    if (SpaceGame.sDown) {
+    if (LSpaceGame.sDown) {
       xVel = xVel -getChangeX(1,direction);
       yVel = yVel -getChangeY(1,direction);
     }
     xVel *= 0.98;
     yVel *= 0.98;
-    if (SpaceGame.aDown) direction -= 3;
-    if (SpaceGame.dDown) direction += 3;
-    if (x<0) x=SpaceGame.width;
-    if (y<0) y=SpaceGame.height;
-    if (x>SpaceGame.width) x=0;
-    if (y>SpaceGame.height) y=0;
+    if (LSpaceGame.aDown) direction -= 3;
+    if (LSpaceGame.dDown) direction += 3;
+    if (x<0) x=LSpaceGame.width;
+    if (y<0) y=LSpaceGame.height;
+    if (x>LSpaceGame.width) x=0;
+    if (y>LSpaceGame.height) y=0;
     direction = (direction +360)%360;
   }
   public void render(Graphics2D g) {
