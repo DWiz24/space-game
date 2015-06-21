@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.*;
 class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static LSpaceGame pan=new LSpaceGame();
-  static BufferedImage back=new BufferedImage(0,0,BufferedImage.TYPE_3BYTE_BGR);
+  static BufferedImage back=null;
   static boolean running=true;
   static boolean wDown=false;
   static boolean aDown=false;
@@ -26,7 +26,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   LShip ship=new LShip();
   public static void gameStart() {
     try {
-      back=ImageIO.read(new File("starBackground.png"));
+      back=ImageIO.read(new File("starBackground.jpg"));
     } catch (Exception e) {
       System.out.println("Failed to load background");
     }
@@ -95,7 +95,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='d') dDown=true;
     if (e.getKeyChar()==' ') {
       if (ship.toFire<=0) {
-      bullets.add(new LBullet(ship.x+(int)ship.getChangeX(20,ship.direction),ship.y+(int)ship.getChangeY(20,ship.direction),ship.direction,40));
+      bullets.add(new LBullet(ship.x+(int)ship.getChangeX(20,ship.direction),ship.y+(int)ship.getChangeY(20,ship.direction),ship.direction,80));
       ship.toFire=8;
       }
     }
@@ -118,7 +118,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     scrnX=Math.max(0,Math.min(ship.x-scrnWid/2,width-scrnWid));
     scrnY=Math.max(0,Math.min(ship.y-scrnHei/2,height-scrnHei));
     AffineTransform trans=new AffineTransform();
-    trans.scale(4,4);
+    trans.scale(1.2,1.2);
     graf.setTransform(trans);
     graf.drawImage(back,-scrnX,-scrnY,null);
     ship.render(graf);
@@ -153,10 +153,10 @@ class LSpaceThing {
   public void render(Graphics2D g) {
   }
   public void updateLoc() {
-    double xChange=(xVel/4)+xCarry;
+    double xChange=(xVel/8)+xCarry;
     x+=(int)xChange;
     xCarry=xChange%1;
-    double yChange=(yVel/4)+yCarry;
+    double yChange=(yVel/8)+yCarry;
     y+=(int)yChange;
     yCarry=yChange%1;
   }
