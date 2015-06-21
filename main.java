@@ -75,7 +75,7 @@ public class Launcher extends JFrame implements ActionListener {
     l[10]=new JLabel("Classic asteroids!");
     l[11]=new JLabel("Classic asteroids!");
     l[12]=new JLabel("Classic asteroids!");
-    l[13]=new JLabel("Classic asteroids!");
+    l[13]=new JLabel("Only rocks. Nothing else. Enjoy!");
     l[14]=new JLabel("Classic asteroids!");
     l[15]=new JLabel("Classic asteroids!");
     JPanel content=new JPanel();
