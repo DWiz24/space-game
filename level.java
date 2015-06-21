@@ -14,6 +14,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static boolean aDown=false;
   static boolean sDown=false;
   static boolean dDown=false;
+  static boolean spaceDown=false;
   static int lives=100;
   static int movingCof=12;
   static int scrnX=0;
@@ -24,6 +25,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static int height=400;
   static int scrnWid=20;
   static int scrnHei=20;
+  static double dif=1;
   LShip ship=new LShip();
   public static void gameStart() {
     try {
@@ -38,6 +40,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     sDown=false;
     aDown=false;
     wDown=false;
+    spaceDown=false;
     JFrame j=new JFrame("Space Game");
     j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     j.setSize(400,400);
@@ -95,10 +98,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='s') sDown=true;
     if (key=='d') dDown=true;
     if (e.getKeyChar()==' ') {
-      if (ship.toFire<=0) {
-      bullets.add(new LBullet(ship.x+(int)ship.getChangeX(20,ship.direction),ship.y+(int)ship.getChangeY(20,ship.direction),ship.direction,80));
-      ship.toFire=8;
-      }
+      spaceDown=true;
     }
   }
   public void keyReleased(KeyEvent e) {
@@ -107,6 +107,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     if (key=='a') aDown=false;
     if (key=='s') sDown=false;
     if (key=='d') dDown=false;
+    if (key==' ') spaceDown=false;
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -189,6 +190,10 @@ class LShip extends LSpaceThing {
   public void tick() {
     updateLoc();
     toFire=Math.max(toFire-1,0);
+    if (LSpaceGame.spaceDown && toFire<=0) {
+      LSpaceGame.pan.bullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,80));
+      toFire=12;
+      }
     if (LSpaceGame.wDown) {
       xVel = xVel + getChangeX(1,direction);
       yVel = yVel + getChangeY(1,direction);
@@ -255,38 +260,39 @@ class LRock extends LSpaceThing {
   Point[] shape=new Point[16];
   public void tick() {
     updateLoc();
-    if (y<-10 || x<-10 || x>LSpaceGame.width+10 || y>LSpaceGame.height+10) {
-      SpaceGame.pan.rocks.remove(this);
-    }
+    if (x<0) x=LSpaceGame.width;
+    if (y<0) y=LSpaceGame.height;
+    if (x>LSpaceGame.width) x=0;
+    if (y>LSpaceGame.height) y=0;
   }
   public LRock() {
     double i=Math.random();
     if (i<=0.25) {
       x=-9;
-      y=(int)Math.floor(Math.random()*SpaceGame.height);
-      xVel=Math.abs(Math.floor(Math.random()*(30*SpaceGame.dif+2)));
-      yVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
+      y=(int)Math.floor(Math.random()*LSpaceGame.height);
+      xVel=Math.abs(Math.floor(Math.random()*(30*LSpaceGame.dif+2)));
+      yVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
     }
     if (i<=0.5 && i>0.25) {
-      x=SpaceGame.width+9;
-      y=(int)Math.floor(Math.random()*SpaceGame.height);
-      xVel=-Math.abs(Math.floor(Math.random()*(2+30*SpaceGame.dif)));
-      yVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
+      x=LSpaceGame.width+9;
+      y=(int)Math.floor(Math.random()*LSpaceGame.height);
+      xVel=-Math.abs(Math.floor(Math.random()*(2+30*LSpaceGame.dif)));
+      yVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
     }
     if (i<=0.75 && i>0.5) {
       y=-9;
-      x=(int)Math.floor(Math.random()*SpaceGame.width);
-      yVel=Math.abs(Math.floor(Math.random()*(2+30*SpaceGame.dif)));
-      xVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
+      x=(int)Math.floor(Math.random()*LSpaceGame.width);
+      yVel=Math.abs(Math.floor(Math.random()*(2+30*LSpaceGame.dif)));
+      xVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
     }
     if (i>0.75) {
-      y=SpaceGame.height+9;
-      x=(int)Math.floor(Math.random()*SpaceGame.width);
-      yVel=-Math.abs(Math.floor(Math.random()*(2+30*SpaceGame.dif)));
-      xVel=Math.floor(Math.random()*(2+30*SpaceGame.dif));
+      y=LSpaceGame.height+9;
+      x=(int)Math.floor(Math.random()*LSpaceGame.width);
+      yVel=-Math.abs(Math.floor(Math.random()*(2+30*LSpaceGame.dif)));
+      xVel=Math.floor(Math.random()*(2+30*LSpaceGame.dif));
     }
     for (float deg=0; deg<360; deg +=22.5) {
-      double j=Math.random()*15;
+      double j=Math.random()*10;
       int px=(int)getChangeX(20+j,deg);
       int py=(int)getChangeY(20+j,deg);
       shape[(int)(deg/22.5)]=new Point(px,py);
