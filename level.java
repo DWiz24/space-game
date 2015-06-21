@@ -19,6 +19,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static int movingCof=12;
   static int scrnX=0;
   static int scrnY=0;
+  static int level=0;
   ArrayList<LBullet> bullets=new ArrayList<LBullet>();
   ArrayList<LRock> rocks=new ArrayList<LRock>();
   static int width=400;
@@ -27,7 +28,18 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static int scrnHei=20;
   static double dif=1;
   LShip ship=new LShip();
-  public static void gameStart() {
+  public static void levelSetup() {
+    switch (level) {
+      case 1:
+        dif=1;
+        for (int i=0; i<20; i++) {
+          pan.rocks.add(new LRock());
+        }
+        break;
+    }
+  }
+  public static void gameStart(int l) {
+    level=l;
     try {
       back=ImageIO.read(new File("starBackground.jpg"));
     } catch (Exception e) {
