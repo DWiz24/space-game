@@ -54,6 +54,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   }
   public static void gameStart(int l) {
     level=l;
+    won=false;
     try {
       back=ImageIO.read(new File("starBackground.jpg"));
     } catch (Exception e) {
