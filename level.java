@@ -157,7 +157,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     ship.render(graf);
     graf.setTransform(new AffineTransform());
     graf.setFont(new Font("Times New Roman", Font.BOLD,20));
-    graf.drawString("Health: " + lives,10,20);
+    graf.drawString("Health: " + lives,180,20);
     for (int i=0; i<bullets.size(); i++) {
       (bullets.get(i)).render(graf);
     }
@@ -177,13 +177,21 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       graf.setColor(Color.BLUE);
       graf.drawString("You won!",scrnWid/3,scrnHei/3);
     }
+    graf.setColor(Color.GREEN);
+    graf.draw(new Rectangle2D.Float(0,0,170,170));
+    graf.setColor(Color.BLUE);
+    graf.fill(new Rectangle2D.Float(ship.x*170/width,ship.y*170/height,5,5));
+    graf.setColor(Color.RED);
+    for (int i=0; i<rocks.size();i++) {
+    graf.fill(new Rectangle2D.Float(rocks.get(i).x*170/width,rocks.get(i).y*170/height,4,4));
+    }
   }
 }
 class LSpaceThing {
   int x=10;
   int y=10;
   int direction=0;
-  Rectangle2D hit=new Rectangle(0,0,5,5);
+  Rectangle2D hit=new Rectangle  (0,0,5,5);
   double xVel=0;
   double yVel=0;
   double xCarry=0;
