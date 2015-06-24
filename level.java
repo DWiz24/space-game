@@ -51,6 +51,14 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
             pan.rocks.add(new LaserRock());
           }
           break;
+          case 4:
+            for (int i=0; i<80; i++) {
+              pan.rocks.add(new LRock());
+            }
+            for (int i=0; i<10; i++) {
+              pan.rocks.add(new LaserRock());
+            }
+            break;
       case 13:
         dif=1.8;
         for (int i=0; i<200; i++) {
