@@ -252,12 +252,9 @@ class LSpaceThing {
   }
   public int calcDirection(LSpaceThing t) {
     int xChan=t.x-x;
-    int yChan=t.y-y;
-    if (xChan==0) return yChan<0 ? 0:180;
-    if (yChan==0) return xChan<0 ? 270:90;
-    if (xChan<0) return (int)(yChan<0 ? Math.toDegrees(Math.atan(-yChan/-xChan))+270: Math.toDegrees(Math.atan(-xChan/yChan))+180);
-    if (xChan>=0) return (int)(yChan<0 ? Math.toDegrees(Math.atan(xChan/-yChan)): Math.toDegrees(Math.atan(yChan/xChan))+90);
-    return 0;
+    int yChan=-(t.y-y);
+    int degs=(int)Math.toDegrees(Math.atan2(xChan,yChan));
+    return (degs+360)%360;
   }
 }
 class LShip extends LSpaceThing {
