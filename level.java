@@ -24,6 +24,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   static int level=0;
   ArrayList<LBullet> bullets=new ArrayList<LBullet>();
   ArrayList<LRock> rocks=new ArrayList<LRock>();
+  ArrayList<LBullet> enemyBullets=new ArrayList<LBullet>();
   static int width=400;
   static int height=400;
   static int scrnWid=20;
@@ -44,6 +45,12 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
           pan.rocks.add(new LRock());
         }
         break;
+        case 3:
+          dif=0.8;
+          for (int i=0; i<4; i++) {
+            pan.rocks.add(new LaserRock());
+          }
+          break;
       case 13:
         dif=1.8;
         for (int i=0; i<200; i++) {
@@ -94,6 +101,9 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     for (int i=0; i<rocks.size(); i++) {
       rocks.get(i).tick();
     }
+    for (int i=0; i<enemyBullets.size(); i++) {
+      enemyBullets.get(i).tick();
+    }
     repaint();
     for (int i=0; i<rocks.size(); i++) {
       LRock r=rocks.get(i);
@@ -110,6 +120,12 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       }
       }
     }
+      for (int i=0; i<enemyBullets.size(); i++) {
+        if (enemyBullets.get(i).hit.intersects(ship.hit)) {
+          enemyBullets.remove(i);
+          lives -=5;
+        }
+      }
     try {
       Thread.sleep(20);
     } catch (Exception e) {
@@ -164,6 +180,9 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     for (int i=0; i<rocks.size(); i++) {
       rocks.get(i).render(graf);
     }
+    for (int i=0; i<enemyBullets.size(); i++) {
+      enemyBullets.get(i).render(graf);
+    }
     if (lives<=0) {
       running=false;
       graf.setTransform(new AffineTransform());
@@ -177,6 +196,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       graf.setColor(Color.BLUE);
       graf.drawString("You won!",scrnWid/3,scrnHei/3);
     }
+    graf.setTransform(new AffineTransform());
     graf.setColor(Color.GREEN);
     graf.draw(new Rectangle2D.Float(0,0,170,170));
     graf.setColor(Color.BLUE);
@@ -191,7 +211,7 @@ class LSpaceThing {
   int x=10;
   int y=10;
   int direction=0;
-  Rectangle2D hit=new Rectangle  (0,0,5,5);
+  Rectangle2D hit=new Rectangle(0,0,5,5);
   double xVel=0;
   double yVel=0;
   double xCarry=0;
@@ -229,6 +249,15 @@ class LSpaceThing {
     if (direction >180 && direction<270) return (Math.cos(Math.toRadians(direction-180))*(double)len);
     if (direction >270 && direction!=360) return -(Math.sin(Math.toRadians(direction-270))*(double)len);
     return 5;
+  }
+  public int calcDirection(LSpaceThing t) {
+    int xChan=t.x-x;
+    int yChan=t.y-y;
+    if (xChan==0) return yChan<0 ? 0:180;
+    if (yChan==0) return xChan<0 ? 270:90;
+    if (xChan<0) return (int)(yChan<0 ? Math.toDegrees(Math.atan(-yChan/-xChan))+270: Math.toDegrees(Math.atan(-xChan/yChan))+180);
+    if (xChan>=0) return (int)(yChan<0 ? Math.toDegrees(Math.atan(xChan/-yChan)): Math.toDegrees(Math.atan(yChan/xChan))+90);
+    return 0;
   }
 }
 class LShip extends LSpaceThing {
@@ -357,5 +386,28 @@ class LRock extends LSpaceThing {
     g.setColor(new Color(153,92,21));
     g.setTransform(new AffineTransform());
     g.fill(p);
+  }
+}
+class LaserRock extends LRock {
+  int toFire=0;
+  public void render(Graphics2D g) {
+    super.render(g);
+    g.setTransform(new AffineTransform());
+    g.setColor(Color.GREEN);
+    g.fill(new Rectangle2D.Float(x-2-LSpaceGame.scrnX,y-2-LSpaceGame.scrnY,4,4));
+  }
+  public LaserRock() {
+    super();
+    xVel *=0.75;
+    yVel*=0.75;
+  }
+  public void tick() {
+    super.tick();
+    toFire=Math.max(0,toFire-1);
+    if (toFire==0) {
+      toFire=(int)Math.floor(Math.random()*20)+37;
+      int direction=calcDirection(LSpaceGame.pan.ship);
+      LSpaceGame.pan.enemyBullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,60));
+    }
   }
 }
