@@ -41,7 +41,7 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
         break;
       case 2:
         dif=1.2;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<80; i++) {
           pan.rocks.add(new LRock());
         }
         break;
@@ -52,10 +52,11 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
           }
           break;
           case 4:
-            for (int i=0; i<80; i++) {
+            dif=0.9;
+            for (int i=0; i<30; i++) {
               pan.rocks.add(new LRock());
             }
-            for (int i=0; i<10; i++) {
+            for (int i=0; i<5; i++) {
               pan.rocks.add(new LaserRock());
             }
             break;
@@ -414,5 +415,50 @@ class LaserRock extends LRock {
       int direction=calcDirection(LSpaceGame.pan.ship);
       LSpaceGame.pan.enemyBullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,60));
     }
+  }
+}
+class EnemyShip extends LSpaceThing {
+  int toFire=0;
+  public void tick() {
+    updateLoc();
+    toFire=Math.max(toFire-1,0);
+    if (Math.pow(LSpaceGame.pan.ship.x,2)+Math.pow(LSpaceGame.pan.ship.y,2))
+    if (LSpaceGame.spaceDown && toFire<=0) {
+      LSpaceGame.pan.bullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,80));
+      toFire=12;
+      }
+    if (LSpaceGame.wDown) {
+      xVel = xVel + getChangeX(1,direction);
+      yVel = yVel + getChangeY(1,direction);
+    }
+    if (LSpaceGame.sDown) {
+      xVel = xVel -getChangeX(1,direction);
+      yVel = yVel -getChangeY(1,direction);
+    }
+    xVel *= 0.98;
+    yVel *= 0.98;
+    if (LSpaceGame.aDown) direction -= 3;
+    if (LSpaceGame.dDown) direction += 3;
+    if (x<0) x=LSpaceGame.width;
+    if (y<0) y=LSpaceGame.height;
+    if (x>LSpaceGame.width) x=0;
+    if (y>LSpaceGame.height) y=0;
+    direction = (direction +360)%360;
+  }
+  public void render(Graphics2D g) {
+    GeneralPath p=new GeneralPath();
+    int sX=LSpaceGame.scrnX;
+    int sY=LSpaceGame.scrnY;
+    p.moveTo(x-10-sX,y-8-sY);
+    p.lineTo(x+10-sX,y-sY);
+    p.lineTo(x-10-sX,y+8-sY);
+    p.lineTo(x-4-sX,y-sY);
+    p.closePath();
+    AffineTransform af=new AffineTransform();
+    g.setTransform(af);
+    g.rotate(Math.toRadians(direction-90),x-sX,y-sY);
+    hit=af.createTransformedShape(p).getBounds2D();
+    g.setColor(Color.ORANGE);
+    g.fill(p);
   }
 }
