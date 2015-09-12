@@ -23,6 +23,7 @@ public class Launcher extends JFrame implements ActionListener {
     setVisible(false);
   }
   public static void main(String[] a) {
+  JOptionPane.showMessageDialog(null,"Levels 5-12 and 15 have not yet been created, as this game is still being developed.");
     for (int i=0; i<lvlComplete.length; i++) {
       lvlComplete[i]=false;
     }
