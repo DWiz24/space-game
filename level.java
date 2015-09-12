@@ -25,13 +25,17 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
   ArrayList<LBullet> bullets=new ArrayList<LBullet>();
   ArrayList<LRock> rocks=new ArrayList<LRock>();
   ArrayList<LBullet> enemyBullets=new ArrayList<LBullet>();
-  static int width=400;
-  static int height=400;
+  static int width=2000;
+  static int height=2000;
   static int scrnWid=20;
   static int scrnHei=20;
+  static boolean regen=false;
   static double dif=1;
+  ArrayList<EnemyShip> ships=new ArrayList<EnemyShip>();
   LShip ship=new LShip();
   public static void levelSetup() {
+  height=2000;
+  width=2000;
     switch (level) {
       case 1:
         dif=0.7;
@@ -60,16 +64,60 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
               pan.rocks.add(new LaserRock());
             }
             break;
+          case 5: 
+            pan.ships.add(new EnemyShip());
+            break;
+            case 6:
+               for (int i=0; i<5; i++) {
+               pan.ships.add(new EnemyShip());
+               }
+               break;
+      case 7:
+               for (int i=0; i<5; i++) {
+               pan.ships.add(new EnemyShip());
+               }
+               dif=0.9;
+            for (int i=0; i<30; i++) {
+              pan.rocks.add(new LRock());
+            }
+
+               break;
+               case 8:
+               for (int i=0; i<20; i++) {
+               pan.ships.add(new EnemyShip());
+               }
+               break;
+      case 9:
+         width=6000;
+         height=6000;
+         regen=true;
+         for (int i=0; i<40; i++) {
+               pan.ships.add(new EnemyShip());
+               }
+               break;
       case 13:
         dif=1.8;
+        regen=true;
         for (int i=0; i<200; i++) {
           pan.rocks.add(new LRock());
         }
         break;
+       case 14:
+         dif=1.8;
+         height=4000;
+         width=4000;
+         regen=true;
+         for (int i=0; i<100; i++) {
+          pan.rocks.add(new LRock());
+        }
+        for (int i=0; i<10; i++) {
+        pan.rocks.add(new LaserRock());
+        }
     }
   }
   public static void gameStart(int l) {
     level=l;
+    regen=false;
     won=false;
     try {
       back=ImageIO.read(new File("starBackground.jpg"));
@@ -100,7 +148,8 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     pan.ship.x=80;
     pan.ship.y=80;
     while (running && !won) {
-      if (rocks.size()==0 && ticks>310) won=true;
+    
+      if (rocks.size()==0 && ships.size()==0 && ticks>310) won=true;
       ticks++;
       if (ticks==300) levelSetup();
       ship.tick();
@@ -112,6 +161,9 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     }
     for (int i=0; i<enemyBullets.size(); i++) {
       enemyBullets.get(i).tick();
+    }
+    for (int i=0; i<ships.size(); i++) {
+    ships.get(i).tick();
     }
     repaint();
     for (int i=0; i<rocks.size(); i++) {
@@ -125,6 +177,21 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
       if (r.hit.intersects(b.hit)) {
         bullets.remove(b);
         rocks.remove(r);
+        Launcher.killed++;
+      }
+      }
+    }
+    for (int i=0; i<ships.size(); i++) {
+      EnemyShip r=ships.get(i);
+      if (r.hit.intersects(ship.hit)) {
+        lives -=20;
+        ships.remove(r);
+      }
+      for (int j=0; j<bullets.size(); j++) {
+        LBullet b=bullets.get(j);
+      if (r.hit.intersects(b.hit)) {
+        bullets.remove(b);
+        ships.remove(r);
         Launcher.killed++;
       }
       }
@@ -171,14 +238,14 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     scrnWid=getSize().width;
     scrnHei=getSize().height;
     Graphics2D graf=(Graphics2D) g;
-    width=2000;
-    height=2000;
     scrnX=Math.max(0,Math.min(ship.x-scrnWid/2,width-scrnWid));
     scrnY=Math.max(0,Math.min(ship.y-scrnHei/2,height-scrnHei));
     AffineTransform trans=new AffineTransform();
     trans.scale(1.2,1.2);
     graf.setTransform(trans);
     graf.drawImage(back,-scrnX,-scrnY,null);
+    graf.setColor(Color.BLACK);
+    if (back==null) graf.fill(new Rectangle2D.Float(0,0,scrnWid,scrnHei));
     ship.render(graf);
     graf.setTransform(new AffineTransform());
     graf.setFont(new Font("Times New Roman", Font.BOLD,20));
@@ -191,6 +258,9 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     }
     for (int i=0; i<enemyBullets.size(); i++) {
       enemyBullets.get(i).render(graf);
+    }
+    for (int i=0; i<ships.size(); i++) {
+      ships.get(i).render(graf);
     }
     if (lives<=0) {
       running=false;
@@ -213,6 +283,9 @@ class LSpaceGame extends JPanel implements KeyListener, Runnable {
     graf.setColor(Color.RED);
     for (int i=0; i<rocks.size();i++) {
     graf.fill(new Rectangle2D.Float(rocks.get(i).x*170/width,rocks.get(i).y*170/height,4,4));
+    }
+    for (int i=0; i<ships.size();i++) {
+    graf.fill(new Rectangle2D.Float(ships.get(i).x*170/width,ships.get(i).y*170/height,4,4));
     }
   }
 }
@@ -268,12 +341,18 @@ class LSpaceThing {
 }
 class LShip extends LSpaceThing {
   int toFire=0;
+  int toRegen=0;
   public void tick() {
     updateLoc();
     toFire=Math.max(toFire-1,0);
+    toRegen=Math.max(toRegen-1,0);
     if (LSpaceGame.spaceDown && toFire<=0) {
       LSpaceGame.pan.bullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,80));
       toFire=12;
+      }
+      if (toRegen==0 && LSpaceGame.lives<50 && LSpaceGame.regen) {
+      LSpaceGame.lives++;
+      toRegen=120;
       }
     if (LSpaceGame.wDown) {
       xVel = xVel + getChangeX(1,direction);
@@ -419,26 +498,64 @@ class LaserRock extends LRock {
 }
 class EnemyShip extends LSpaceThing {
   int toFire=0;
+  int toTurn=0;
+  public EnemyShip() {
+  double d=Math.random();
+    if (d<=0.25) {
+      x=-9;
+      y=(int)Math.floor(Math.random()*LSpaceGame.height);
+    }
+    if (d<=0.5 && d>0.25) {
+      x=LSpaceGame.width+9;
+      y=(int)Math.floor(Math.random()*LSpaceGame.height);
+    }
+    if (d<=0.75 && d>0.5) {
+      y=-9;
+      x=(int)Math.floor(Math.random()*LSpaceGame.width);
+    }
+    if (d>0.75) {
+      y=LSpaceGame.height+9;
+      x=(int)Math.floor(Math.random()*LSpaceGame.width);
+    }
+
+  }
   public void tick() {
     updateLoc();
     toFire=Math.max(toFire-1,0);
-    if (Math.pow(LSpaceGame.pan.ship.x,2)+Math.pow(LSpaceGame.pan.ship.y,2))
-    if (LSpaceGame.spaceDown && toFire<=0) {
-      LSpaceGame.pan.bullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,80));
-      toFire=12;
-      }
-    if (LSpaceGame.wDown) {
-      xVel = xVel + getChangeX(1,direction);
-      yVel = yVel + getChangeY(1,direction);
+    int dis=(int)(Math.pow(LSpaceGame.pan.ship.x-x,2)+Math.pow(LSpaceGame.pan.ship.y-y,2));
+    if (dis>700000){
+    toTurn=Math.max(toTurn-1,0);
+    if (toTurn==0) {
+    toTurn=180;
+    if (Math.random()<0.5) {
+    direction+=50;
+    } else {
+    direction-=50;
     }
-    if (LSpaceGame.sDown) {
-      xVel = xVel -getChangeX(1,direction);
-      yVel = yVel -getChangeY(1,direction);
+    }
+    xVel = xVel + getChangeX(0.5,direction);
+    yVel = yVel + getChangeY(0.5,direction);
+    } else {
+    int toShip=calcDirection(LSpaceGame.pan.ship);
+    if (toShip-direction>180 || (toShip-direction<0 && toShip-direction>-180)) {
+    direction-=1;
+    } else {
+    direction+=1;
+    }
+    if (Math.abs(direction-toShip)<20) {
+    xVel = xVel + getChangeX(0.8,direction);
+    yVel = yVel + getChangeY(0.8,direction);
+    } else {
+    xVel = xVel + getChangeX(0.5,direction);
+    yVel = yVel + getChangeY(0.5,direction);
+    }
+    if (Math.abs(toShip-direction)<18 && toFire==0) {
+    LSpaceGame.pan.enemyBullets.add(new LBullet(x+(int)getChangeX(20,direction),y+(int)getChangeY(20,direction),direction,100));
+    toFire=30;
+    }
     }
     xVel *= 0.98;
     yVel *= 0.98;
-    if (LSpaceGame.aDown) direction -= 3;
-    if (LSpaceGame.dDown) direction += 3;
     if (x<0) x=LSpaceGame.width;
     if (y<0) y=LSpaceGame.height;
     if (x>LSpaceGame.width) x=0;
