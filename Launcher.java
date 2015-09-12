@@ -23,7 +23,7 @@ public class Launcher extends JFrame implements ActionListener {
     setVisible(false);
   }
   public static void main(String[] a) {
-  JOptionPane.showMessageDialog(null,"Levels 5-12 and 15 have not yet been created, as this game is still being developed.");
+  JOptionPane.showMessageDialog(null,"Levels 10-12 and 15 have not yet been created, as this game is still being developed.");
     for (int i=0; i<lvlComplete.length; i++) {
       lvlComplete[i]=false;
     }
@@ -66,19 +66,19 @@ public class Launcher extends JFrame implements ActionListener {
     l[0]=new JLabel("Classic asteroids! Goes on forever.");
     l[1]=new JLabel("Destroy all the asteroids");
     l[2]=new JLabel("Destroy even more asteroids");
-    l[3]=new JLabel("Classic asteroids!");
-    l[4]=new JLabel("Classic asteroids!");
-    l[5]=new JLabel("Classic asteroids!");
-    l[6]=new JLabel("Classic asteroids!");
-    l[7]=new JLabel("Classic asteroids!");
-    l[8]=new JLabel("Classic asteroids!");
-    l[9]=new JLabel("Classic asteroids!");
-    l[10]=new JLabel("Classic asteroids!");
-    l[11]=new JLabel("Classic asteroids!");
-    l[12]=new JLabel("Classic asteroids!");
+    l[3]=new JLabel("They shoot back?");
+    l[4]=new JLabel("LOL: Lots Of Lasers");
+    l[5]=new JLabel("This game started on the rocks, but now...");
+    l[6]=new JLabel("Outnumbered");
+    l[7]=new JLabel("More rocks to get in your way");
+    l[8]=new JLabel("Your ship regenerates its health here, you will need it");
+    l[9]=new JLabel("Big map, large pain");
+    l[10]=new JLabel("TBD");
+    l[11]=new JLabel("TBD");
+    l[12]=new JLabel("TBD");
     l[13]=new JLabel("Only rocks. Nothing else. Enjoy!");
-    l[14]=new JLabel("Classic asteroids!");
-    l[15]=new JLabel("Classic asteroids!");
+    l[14]=new JLabel("13 was easy compared to this!");
+    l[15]=new JLabel("TBD");
     JPanel content=new JPanel();
     content.setLayout(new GridLayout(9,4));
     content.add(new JPanel());
